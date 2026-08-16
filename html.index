@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acordo Aqui - CEPACE</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f0f2f5; display: flex; flex-direction: column; height: 100vh; }
+        header { background: #005c4b; color: white; padding: 15px; font-size: 1.2em; font-weight: bold; text-align: center; }
+        .main { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+        .sidebar { background: white; border-bottom: 1px solid #ddd; padding: 15px; overflow-y: auto; max-height: 30%; }
+        .chat { flex: 1; background: #efeae2; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .panel { background: white; border-top: 1px solid #ddd; padding: 15px; }
+        .btn { display: block; width: 100%; padding: 12px; margin-bottom: 10px; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1em; cursor: pointer; }
+        .btn-green { background: #128C7E; }
+        .btn-blue { background: #34B7F1; }
+        .btn-red { background: #E53935; }
+        .solicitacao { padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <header>Programa Acordo Aqui - CEPACE</header>
+    <div class="main">
+        <!-- Fila de Pessoas -->
+        <div class="sidebar">
+            <h3 style="margin-top: 0;">Fila de Triagem</h3>
+            <div class="solicitacao">
+                <strong>Solicitação #1029</strong><br>
+                <small style="color: #d32f2f;">Faltando Documentação Completa</small>
+            </div>
+            <div class="solicitacao">
+                <strong>Solicitação #1030</strong><br>
+                <small style="color: #388e3c;">Acordo Preenche Condições</small>
+            </div>
+        </div>
+        
+        <!-- Área de Conversa -->
+        <div class="chat">
+            <h2 style="color: #555; margin: 0;">Sistema de Atendimento</h2>
+            <p style="color: #888;">Selecione uma solicitação para visualizar os documentos.</p>
+        </div>
+
+        <!-- Botões de Ação do POP -->
+        <div class="panel">
+            <button class="btn btn-blue" onclick="alert('Analisando documentações recebidas...')">Analisar Documentações</button>
+            <button class="btn btn-green" onclick="alert('Acordo atermado com sucesso no Projudi!')">Atermar Acordo no Projudi</button>
+            <button class="btn btn-red" onclick="alert('Intimação enviada pela serventia.')">Intimar Partes</button>
+        </div>
+    </div>
+</body>
+</html>
