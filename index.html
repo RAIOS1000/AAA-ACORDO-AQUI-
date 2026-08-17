@@ -3,49 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acordo Aqui - CEPACE</title>
+    <title>Demo Interativa - Acordo Aqui CEPACE</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f0f2f5; display: flex; flex-direction: column; height: 100vh; }
-        header { background: #005c4b; color: white; padding: 15px; font-size: 1.2em; font-weight: bold; text-align: center; }
-        .main { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-        .sidebar { background: white; border-bottom: 1px solid #ddd; padding: 15px; overflow-y: auto; max-height: 30%; }
-        .chat { flex: 1; background: #efeae2; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .panel { background: white; border-top: 1px solid #ddd; padding: 15px; }
-        .btn { display: block; width: 100%; padding: 12px; margin-bottom: 10px; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1em; cursor: pointer; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #d1d7db; display: flex; flex-direction: column; height: 100vh; }
+        header { background: #005c4b; color: white; padding: 15px 20px; font-size: 1.2em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
+        .badge { background: #ffc107; color: #333; font-size: 0.7em; padding: 3px 8px; border-radius: 12px; vertical-align: middle; }
+        .main { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Fila de Atendimento */
+        .sidebar { width: 320px; background: white; border-right: 1px solid #d1d7db; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 15px; background: #f0f2f5; border-bottom: 1px solid #d1d7db; font-weight: bold; color: #333; }
+        .lista-contatos { overflow-y: auto; flex: 1; }
+        .contato { padding: 15px; border-bottom: 1px solid #f2f2f2; cursor: pointer; transition: background 0.2s; }
+        .contato:hover { background: #f5f6f6; }
+        .contato.ativo { background: #ebebeb; }
+        .contato-nome { font-weight: bold; color: #111b21; font-size: 1.1em; display: flex; justify-content: space-between; }
+        .contato-status { font-size: 0.85em; margin-top: 5px; color: #667781; }
+        
+        /* Área do Chat (Meio) */
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #efeae2; position: relative; }
+        .chat-header { padding: 15px; background: #f0f2f5; border-bottom: 1px solid #d1d7db; font-weight: bold; color: #111b21; }
+        .chat-history { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 70%; padding: 10px 15px; border-radius: 8px; font-size: 0.95em; line-height: 1.4; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .msg-bot { background: white; align-self: flex-start; border-top-left-radius: 0; }
+        .msg-cliente { background: #d9fdd3; align-self: flex-end; border-top-right-radius: 0; }
+        .msg-sistema { background: #fff3cd; align-self: center; font-size: 0.85em; color: #856404; text-align: center; border-radius: 12px; padding: 5px 15px; box-shadow: none; border: 1px solid #ffeeba; }
+        .doc-anexo { display: flex; align-items: center; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 5px; margin-top: 5px; cursor: pointer; border: 1px solid #ccc; }
+        
+        /* Painel de Ações (Direita) */
+        .panel { width: 300px; background: white; border-left: 1px solid #d1d7db; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+        .panel h3 { margin-top: 0; color: #333; font-size: 1.1em; border-bottom: 2px solid #005c4b; padding-bottom: 5px; }
+        .btn { padding: 12px; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 0.95em; cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { background: #ccc !important; cursor: not-allowed; }
         .btn-green { background: #128C7E; }
-        .btn-blue { background: #34B7F1; }
-        .btn-red { background: #E53935; }
-        .solicitacao { padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; margin-bottom: 10px; }
+        .btn-blue { background: #007bff; }
+        .btn-red { background: #dc3545; }
+        .btn-outline { background: transparent; color: #005c4b; border: 1px solid #005c4b; }
+        
+        /* Visualizador Modal Falso */
+        #modal-doc { display: none; position: absolute; top: 10%; left: 10%; right: 10%; bottom: 10%; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border-radius: 10px; z-index: 100; flex-direction: column; }
+        .modal-header { background: #333; color: white; padding: 10px; display: flex; justify-content: space-between; border-radius: 10px 10px 0 0; }
+        .modal-body { flex: 1; display: flex; justify-content: center; align-items: center; background: #eee; color: #666; }
     </style>
 </head>
 <body>
-    <header>Programa Acordo Aqui - CEPACE</header>
+
+    <header>
+        <div>⚖️ Central de Pautas - Acordo Aqui</div>
+        <span class="badge">AMBIENTE DE DEMONSTRAÇÃO</span>
+    </header>
+
     <div class="main">
-        <!-- Fila de Pessoas -->
+        <!-- Fila Esquerda -->
         <div class="sidebar">
-            <h3 style="margin-top: 0;">Fila de Triagem</h3>
-            <div class="solicitacao">
-                <strong>Solicitação #1029</strong><br>
-                <small style="color: #d32f2f;">Faltando Documentação Completa</small>
+            <div class="sidebar-header">Fila de Triagem (2)</div>
+            <div class="lista-contatos">
+                <div class="contato ativo" onclick="selecionarChat(1)">
+                    <div class="contato-nome">Roberto Alves <span style="color: #128C7E; font-size: 0.8em;">Novo</span></div>
+                    <div class="contato-status text-truncate">Acordo Aqui - Processual</div>
+                </div>
+                <div class="contato" onclick="selecionarChat(2)">
+                    <div class="contato-nome">Juliana Martins</div>
+                    <div class="contato-status">Aguardando Documentação...</div>
+                </div>
             </div>
-            <div class="solicitacao">
-                <strong>Solicitação #1030</strong><br>
-                <small style="color: #388e3c;">Acordo Preenche Condições</small>
-            </div>
-        </div>
-        
-        <!-- Área de Conversa -->
-        <div class="chat">
-            <h2 style="color: #555; margin: 0;">Sistema de Atendimento</h2>
-            <p style="color: #888;">Selecione uma solicitação para visualizar os documentos.</p>
         </div>
 
-        <!-- Botões de Ação do POP -->
+        <!-- Chat Central -->
+        <div class="chat-area">
+            <div class="chat-header" id="chat-titulo">Atendimento: Roberto Alves</div>
+            <div class="chat-history" id="chat-historico">
+                <!-- Chat populado via JavaScript -->
+            </div>
+            
+            <!-- Modal Visualizador de Documento -->
+            <div id="modal-doc">
+                <div class="modal-header">
+                    <span>Visualizador de Documentos Seguros (Isolado)</span>
+                    <button onclick="fecharModal()" style="background:red;color:white;border:none;border-radius:3px;cursor:pointer;">Fechar</button>
+                </div>
+                <div class="modal-body">
+                    <div style="text-align: center;">
+                        <h1 style="font-size: 4em; margin:0;">📄</h1>
+                        <h3>RG_Frente_Verso.pdf</h3>
+                        <p>Simulação de visualização de arquivo criptografado.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel Direito -->
         <div class="panel">
-            <button class="btn btn-blue" onclick="alert('Analisando documentações recebidas...')">Analisar Documentações</button>
-            <button class="btn btn-green" onclick="alert('Acordo atermado com sucesso no Projudi!')">Atermar Acordo no Projudi</button>
-            <button class="btn btn-red" onclick="alert('Intimação enviada pela serventia.')">Intimar Partes</button>
+            <h3>Ações da Solicitação</h3>
+            
+            <p style="font-size: 0.85em; color: #555; line-height: 1.4;">
+                Selecione as opções abaixo com base na análise do termo de audiência e condições do projeto.
+            </p>
+
+            <button class="btn btn-blue" id="btn-verificar" onclick="verificarDocs()">
+                🔍 Analisar Documentações
+            </button>
+            
+            <button class="btn btn-green" id="btn-atermar" onclick="atermar()">
+                ✅ Atermar no Projudi
+            </button>
+            
+            <button class="btn btn-red" id="btn-intimar" onclick="intimar()">
+                📨 Intimar via Serventia
+            </button>
+
+            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <h4 style="margin:0 0 10px 0; color:#333; font-size:0.9em;">Respostas Rápidas Automáticas:</h4>
+                <button class="btn btn-outline" style="width: 100%; padding: 8px; font-size: 0.8em;" onclick="enviarCartaConvite()">
+                    Enviar Carta Convite (Notificação)
+                </button>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Banco de dados falso para simular o sistema rodando
+        const bancoDeDados = {
+            1: {
+                nome: "Roberto Alves",
+                mensagens: [
+                    { tipo: 'sistema', texto: 'Solicitação registrada no site do TJGO (Acordo Aqui - Processual).' },
+                    { tipo: 'bot', texto: 'Olá, Roberto! Você entrou em contato com o CEPACE. Identificamos seu processo. Por favor, envie sua documentação em PDF.' },
+                    { tipo: 'cliente', texto: 'Bom dia. Segue o meu documento.' },
+                    { tipo: 'cliente', texto: '<div class="doc-anexo" onclick="abrirModal()">📄 <strong>Identidade_Roberto.pdf</strong><br><small>Clique para analisar</small></div>' }
+                ],
+                atermado: false
+            },
+            2: {
+                nome: "Juliana Martins",
+                mensagens: [
+                    { tipo: 'sistema', texto: 'Solicitação registrada: Acordo Aqui - Super Endividados.' },
+                    { tipo: 'bot', texto: 'Olá, Juliana! Para iniciarmos o cumprimento, favor enviar a documentação completa exigida.' },
+                    { tipo: 'cliente', texto: 'Oi, eu mando por aqui mesmo?' }
+                ],
+                atermado: false
+            }
+        };
+
+        let chatAtual = 1;
+
+        // Renderiza as mensagens na tela
+        function renderizarChat() {
+            const historico = document.getElementById('chat-historico');
+            document.getElementById('chat-titulo').innerText = "Atendimento: " + bancoDeDados[chatAtual].nome;
+            historico.innerHTML = '';
+            
+            bancoDeDados[chatAtual].mensagens.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = 'msg msg-' + msg.tipo;
+                div.innerHTML = msg.texto;
+                historico.appendChild(div);
+            });
+            historico.scrollTop = historico.scrollHeight;
+        }
+
+        // Função para simular a seleção de pessoas na fila
+        function selecionarChat(id) {
+            chatAtual = id;
+            document.querySelectorAll('.contato').forEach((el, index) => {
+                if(index + 1 === id) el.classList.add('ativo');
+                else el.classList.remove('ativo');
+            });
+            renderizarChat();
+        }
+
+        // Simula a análise de documento no painel lateral
+        function verificarDocs() {
+            alert("Sistema: Documentação aberta em ambiente seguro. Verifique se preenche as condições do projeto antes de atermar.");
+            abrirModal();
+        }
+
+        // Simula o botão "Atermar no Projudi"
+        function atermar() {
+            if(bancoDeDados[chatAtual].atermado) {
+                alert("Este acordo já foi atermado!");
+                return;
+            }
+            // Adiciona mensagem verde de sistema
+            bancoDeDados[chatAtual].mensagens.push({ 
+                tipo: 'sistema', 
+                texto: '🎉 Acordo atermado no Projudi com sucesso! Disponível para a Central de Conciliadores.' 
+            });
+            bancoDeDados[chatAtual].atermado = true;
+            renderizarChat();
+        }
+
+        // Simula o botão "Intimar partes"
+        function intimar() {
+            bancoDeDados[chatAtual].mensagens.push({ 
+                tipo: 'sistema', 
+                texto: '⚠️ Faltam documentos. Inserido post-it no Projudi para intimação pela serventia.' 
+            });
+            renderizarChat();
+        }
+
+        // Simula o envio automático de carta convite
+        function enviarCartaConvite() {
+            bancoDeDados[chatAtual].mensagens.push({ 
+                tipo: 'bot', 
+                texto: '📄 <strong>Notificação Oficial (Carta Convite):</strong><br>Informamos a necessidade de atualização do seu cadastro e apresentação da documentação faltante num prazo de 2 dias.' 
+            });
+            renderizarChat();
+        }
+
+        // Funções do visualizador falso de PDF
+        function abrirModal() { document.getElementById('modal-doc').style.display = 'flex'; }
+        function fecharModal() { document.getElementById('modal-doc').style.display = 'none'; }
+
+        // Inicia a tela
+        renderizarChat();
+    </script>
 </body>
 </html>
